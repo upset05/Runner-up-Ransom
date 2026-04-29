@@ -1,32 +1,55 @@
 {
   "expo": {
-    "name": "RunnerUpRansom",
+    "name": "Runner Up Ransom",
     "slug": "RunnerUpRansom",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0C0C0C"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.livelynotcoding.RunnerUpRansom",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSLocationWhenInUseUsageDescription": "Runner Up Ransom needs location to track your distance goals.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Runner Up Ransom tracks your distance in the background while you complete your goal.",
+        "UIBackgroundModes": ["location", "fetch"]
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#0C0C0C"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.livelynotcoding.RunnerUpRansom"
+      "package": "com.livelynotcoding.RunnerUpRansom",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Runner Up Ransom tracks your distance in the background while completing your goal."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "9e7223e5-9bef-4e13-8c82-6d2c7dd69b9c"

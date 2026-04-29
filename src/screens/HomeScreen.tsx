@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
   FlatList, SafeAreaView, StatusBar
@@ -13,9 +13,7 @@ export default function HomeScreen() {
   const [activeGoal, setActiveGoal] = useState<Goal | null>(null);
 
   useFocusEffect(
-    useCallback(() => {
-      loadGoals();
-    }, [])
+    useCallback(() => { loadGoals(); }, [])
   );
 
   const loadGoals = async () => {
@@ -28,20 +26,23 @@ export default function HomeScreen() {
   const renderGoalCard = ({ item }: { item: Goal }) => {
     const pct = getProgressPercent(item);
     const isMissed = !item.isCompleted && Date.now() > item.deadline;
+    const isActive = !item.isCompleted && !isMissed;
 
     return (
-      <View style={styles.goalCard}>
+      <TouchableOpacity
+        style={styles.goalCard}
+        onPress={() => isActive && navigation.navigate('ActiveGoal')}
+        activeOpacity={isActive ? 0.7 : 1}
+      >
         <View style={styles.goalCardTop}>
           <View style={{ flex: 1 }}>
             <Text style={styles.goalName}>{item.name}</Text>
             <Text style={styles.goalMeta}>{formatProgress(item)}</Text>
           </View>
-          <View style={[
-            styles.badge,
+          <View style={[styles.badge,
             item.isCompleted ? styles.badgeDone : isMissed ? styles.badgeFail : styles.badgeActive
           ]}>
-            <Text style={[
-              styles.badgeText,
+            <Text style={[styles.badgeText,
               item.isCompleted ? styles.badgeTextDone : isMissed ? styles.badgeTextFail : styles.badgeTextActive
             ]}>
               {item.isCompleted ? 'DONE' : isMissed ? 'MISSED' : 'ACTIVE'}
@@ -51,10 +52,10 @@ export default function HomeScreen() {
         <View style={styles.progressBarWrap}>
           <View style={[styles.progressBar, {
             width: `${Math.round(pct * 100)}%` as any,
-            backgroundColor: item.isCompleted ? '#CAFF00' : isMissed ? '#FF4444' : '#CAFF00',
+            backgroundColor: item.isCompleted ? '#CAFF00' : isMissed ? '#FF4444' : '#FFAA00',
           }]} />
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -63,8 +64,13 @@ export default function HomeScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#0C0C0C" />
 
       <View style={styles.header}>
-        <Text style={styles.appTag}>RUNNER UP RANSOM</Text>
-        <Text style={styles.headerTitle}>Your{'\n'}<Text style={styles.accent}>Goals</Text></Text>
+        <View>
+          <Text style={styles.appTag}>RUNNER UP RANSOM</Text>
+          <Text style={styles.headerTitle}>Your{'\n'}<Text style={styles.accent}>Goals</Text></Text>
+        </View>
+        <TouchableOpacity style={styles.settingsBtn} onPress={() => navigation.navigate('Settings')}>
+          <Text style={styles.settingsIcon}>⚙</Text>
+        </TouchableOpacity>
       </View>
 
       {activeGoal && !activeGoal.isCompleted && (
@@ -73,7 +79,7 @@ export default function HomeScreen() {
           onPress={() => navigation.navigate('ActiveGoal')}
         >
           <View>
-            <Text style={styles.activeBannerTag}>ACTIVE GOAL</Text>
+            <Text style={styles.activeBannerTag}>🔴 ACTIVE GOAL — PHONE IS LOCKED</Text>
             <Text style={styles.activeBannerName}>{activeGoal.name}</Text>
             <Text style={styles.activeBannerProgress}>{formatProgress(activeGoal)}</Text>
           </View>
@@ -89,6 +95,7 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: 120 }}
         ListEmptyComponent={
           <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>🔒</Text>
             <Text style={styles.emptyText}>No goals yet.</Text>
             <Text style={styles.emptySubText}>Set one and lock your phone{'\n'}until you earn it back.</Text>
           </View>
@@ -106,21 +113,30 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0C0C0C' },
-  header: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 20 },
+  header: {
+    paddingHorizontal: 24, paddingTop: 20, paddingBottom: 20,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start',
+  },
   appTag: { fontSize: 9, letterSpacing: 4, color: '#444', marginBottom: 4 },
   headerTitle: { fontSize: 34, fontWeight: '700', color: '#F0F0F0', lineHeight: 40 },
   accent: { color: '#CAFF00' },
+  settingsBtn: {
+    width: 40, height: 40, borderRadius: 12,
+    backgroundColor: '#161616', borderWidth: 1, borderColor: '#222',
+    alignItems: 'center', justifyContent: 'center', marginTop: 8,
+  },
+  settingsIcon: { fontSize: 18, color: '#666' },
   activeBanner: {
     marginHorizontal: 24, marginBottom: 16,
-    backgroundColor: '#1A2200', borderRadius: 16,
-    borderWidth: 1, borderColor: '#2A3800',
+    backgroundColor: '#1A0A00', borderRadius: 16,
+    borderWidth: 1, borderColor: '#3A1500',
     padding: 16, flexDirection: 'row',
     alignItems: 'center', justifyContent: 'space-between',
   },
-  activeBannerTag: { fontSize: 9, letterSpacing: 3, color: '#CAFF00', marginBottom: 4 },
+  activeBannerTag: { fontSize: 9, letterSpacing: 2, color: '#FF6600', marginBottom: 4 },
   activeBannerName: { fontSize: 14, fontWeight: '700', color: '#F0F0F0' },
-  activeBannerProgress: { fontSize: 11, color: '#6A8800', marginTop: 2 },
-  activeBannerArrow: { fontSize: 20, color: '#CAFF00' },
+  activeBannerProgress: { fontSize: 11, color: '#6A4400', marginTop: 2 },
+  activeBannerArrow: { fontSize: 20, color: '#FF6600' },
   list: { flex: 1, paddingHorizontal: 24 },
   goalCard: {
     backgroundColor: '#161616', borderRadius: 16,
@@ -133,14 +149,15 @@ const styles = StyleSheet.create({
   badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
   badgeDone: { backgroundColor: '#1A2A00' },
   badgeFail: { backgroundColor: '#2A1010' },
-  badgeActive: { backgroundColor: '#1A1A00' },
+  badgeActive: { backgroundColor: '#1A1000' },
   badgeText: { fontSize: 9, fontWeight: '700', letterSpacing: 1 },
   badgeTextDone: { color: '#CAFF00' },
   badgeTextFail: { color: '#FF4444' },
   badgeTextActive: { color: '#FFAA00' },
   progressBarWrap: { marginTop: 12, backgroundColor: '#222', borderRadius: 3, height: 3 },
   progressBar: { height: 3, borderRadius: 3 },
-  emptyState: { paddingTop: 60, alignItems: 'center' },
+  emptyState: { paddingTop: 80, alignItems: 'center' },
+  emptyIcon: { fontSize: 48, marginBottom: 16 },
   emptyText: { fontSize: 16, color: '#444', fontWeight: '700' },
   emptySubText: { fontSize: 11, color: '#333', textAlign: 'center', marginTop: 8, lineHeight: 18 },
   fab: { position: 'absolute', bottom: 32, left: 24, right: 24 },

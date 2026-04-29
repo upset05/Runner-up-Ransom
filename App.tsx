@@ -7,6 +7,8 @@ import HomeScreen from './src/screens/HomeScreen';
 import CreateGoalScreen from './src/screens/CreateGoalScreen';
 import ActiveGoalScreen from './src/screens/ActiveGoalScreen';
 import OnboardingScreen from './src/screens/OnboardingScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import GoalStore from './src/store/GoalStore';
 
 const Stack = createStackNavigator();
 const ONBOARDING_KEY = 'ransom_onboarding_done';
@@ -21,7 +23,12 @@ export default function App() {
   const determineInitialRoute = async () => {
     try {
       const done = await AsyncStorage.getItem(ONBOARDING_KEY);
-      setInitialRoute(done ? 'Home' : 'Onboarding');
+      if (!done) { setInitialRoute('Onboarding'); return; }
+
+      const active = await GoalStore.getActive();
+      if (active && !active.isCompleted) { setInitialRoute('ActiveGoal'); return; }
+
+      setInitialRoute('Home');
     } catch {
       setInitialRoute('Onboarding');
     }
@@ -39,6 +46,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="CreateGoal" component={CreateGoalScreen} />
         <Stack.Screen name="ActiveGoal" component={ActiveGoalScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
